@@ -476,6 +476,7 @@
     <div class="toggle-group" style="margin-bottom:16px;">
       <div class="scale-toggle" role="group" aria-label="Grandeur affichée">
         <button type="button" id="metric-temp" class="active">Température</button>
+        <button type="button" id="metric-dewpoint">Point de rosée</button>
         <button type="button" id="metric-feels">Ressenti</button>
         <button type="button" id="metric-humidity">Humidité</button>
         <button type="button" id="metric-precip">Précipitations</button>
@@ -536,6 +537,7 @@ let compareChartInstance = null;
 
 const METRIC_CONFIG = {
   temp:     { key:'temps',         label:'Température',    unit:'°C',   axisFmt:v=>v+'°',      tooltipFmt:v=>v.toFixed(1)+' °C' },
+  dewpoint: { key:'dewSeries',     label:'Point de rosée',  unit:'°C',   axisFmt:v=>v+'°',      tooltipFmt:v=>v.toFixed(1)+' °C' },
   feels:    { key:'feelsSeries',   label:'Ressenti',        unit:'°C',   axisFmt:v=>v+'°',      tooltipFmt:v=>v.toFixed(1)+' °C' },
   humidity: { key:'humiditySeries',label:'Humidité',        unit:'%',    axisFmt:v=>v+'%',      tooltipFmt:v=>Math.round(v)+' %' },
   precip:   { key:'precs',         label:'Précipitations',  unit:'mm',   axisFmt:v=>v+'mm',     tooltipFmt:v=>v.toFixed(1)+' mm' },
@@ -809,27 +811,64 @@ function renderCompareChart(){
   }
 
   const metric = METRIC_CONFIG[currentMetric];
+  const showTempToo = currentMetric === 'dewpoint'; // la rosée se lit toujours à côté de la température
   const datasets = [];
   let labels = null;
   let globalMin = Infinity, globalMax = -Infinity;
+
+  const accumulateRange = (values) => {
+    values.forEach(v => { if(v == null) return; if(v < globalMin) globalMin = v; if(v > globalMax) globalMax = v; });
+  };
 
   currentLocations.forEach((loc, idx) => {
     const series = locationSeries[idx];
     if(!series || !locationVisible[idx]) return;
     if(!labels) labels = series.labels;
-    const values = series[metric.key];
-    values.forEach(v => { if(v == null) return; if(v < globalMin) globalMin = v; if(v > globalMax) globalMax = v; });
-    datasets.push({
-      label: loc.name,
-      data: values,
-      borderColor: CITY_COLORS[idx % CITY_COLORS.length],
-      backgroundColor: CITY_COLORS[idx % CITY_COLORS.length],
-      borderWidth: 2,
-      pointRadius: 0,
-      pointHoverRadius: 3,
-      tension: 0.4,
-      fill: false
-    });
+    const color = CITY_COLORS[idx % CITY_COLORS.length];
+
+    if(showTempToo){
+      // Température en trait plein...
+      accumulateRange(series.temps);
+      datasets.push({
+        label: `${loc.name} — Température`,
+        data: series.temps,
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        tension: 0.4,
+        fill: false
+      });
+      // ...point de rosée en pointillé, même couleur, à côté
+      accumulateRange(series.dewSeries);
+      datasets.push({
+        label: `${loc.name} — Point de rosée`,
+        data: series.dewSeries,
+        borderColor: color,
+        backgroundColor: color,
+        borderDash: [5,3],
+        borderWidth: 1.6,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        tension: 0.4,
+        fill: false
+      });
+    } else {
+      const values = series[metric.key];
+      accumulateRange(values);
+      datasets.push({
+        label: loc.name,
+        data: values,
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        tension: 0.4,
+        fill: false
+      });
+    }
   });
 
   if(!labels){
@@ -978,6 +1017,7 @@ function setupViewToggle(){
 function setupMetricToggle(){
   const buttons = {
     temp: document.getElementById('metric-temp'),
+    dewpoint: document.getElementById('metric-dewpoint'),
     feels: document.getElementById('metric-feels'),
     humidity: document.getElementById('metric-humidity'),
     precip: document.getElementById('metric-precip'),
@@ -1477,7 +1517,7 @@ async function loadLocation(idx){
 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}` +
       `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_gusts_10m` +
-      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cape,freezinglevel_height` +
+      `&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,precipitation,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cape,freezinglevel_height` +
       `&timezone=${encodeURIComponent(loc.tz)}&forecast_days=${forecastDays}&past_days=${pastDays}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -1519,6 +1559,7 @@ async function loadLocation(idx){
     const precs = sampleIdx.map(i => h.precipitation[i]);
     const windSeries = sampleIdx.map(i => kmhToBeaufort(h.wind_speed_10m[i]));
     const feelsSeries = sampleIdx.map(i => h.apparent_temperature[i]);
+    const dewSeries = sampleIdx.map(i => h.dew_point_2m[i]);
     const humiditySeries = sampleIdx.map(i => h.relative_humidity_2m[i]);
     const gustSeries = sampleIdx.map(i => h.wind_gusts_10m[i]);
     const capeSeries = sampleIdx.map(i => h.cape[i]);
@@ -1565,7 +1606,7 @@ async function loadLocation(idx){
       return;
     }
 
-    locationSeries[idx] = { labels, temps, precs, windSeries, feelsSeries, humiditySeries, gustSeries, capeSeries, freezingSeries, aqiSeries, dividers, dayLabels, windPoints };
+    locationSeries[idx] = { labels, temps, precs, windSeries, feelsSeries, dewSeries, humiditySeries, gustSeries, capeSeries, freezingSeries, aqiSeries, dividers, dayLabels, windPoints };
     refreshCurrentView();
 
   }catch(err){
