@@ -1209,6 +1209,44 @@ async function searchPlaces(query){
   return data.results || [];
 }
 
+// Repli utilisé uniquement quand Open-Meteo ne renvoie aucun résultat (cols, sommets,
+// lieux-dits...). Point d'accès non officiel de yr.no : on parse défensivement, et on
+// ignore silencieusement toute entrée dont on n'arrive pas à extraire des coordonnées
+// numériques exploitables. Si l'appel échoue entièrement (réseau, CORS...), on renvoie [].
+async function searchYrFallback(query){
+  try{
+    const url = `https://www.yr.no/api/v0/locations/search?q=${encodeURIComponent(query)}&language=fr`;
+    const res = await fetch(url);
+    if(!res.ok) return [];
+    const data = await res.json();
+    const items = (data && data._embedded && data._embedded.location) || [];
+    const results = [];
+    items.forEach(item => {
+      // Les champs de coordonnées de cet endpoint non documenté ne sont pas garantis :
+      // on tente plusieurs chemins plausibles et on ignore l'entrée si aucun ne fonctionne.
+      const pos = item.position || item.geoposition || item.point || {};
+      let lat = pos.lat ?? pos.latitude ?? (Array.isArray(item.point?.coordinates) ? item.point.coordinates[1] : undefined);
+      let lon = pos.lon ?? pos.lng ?? pos.longitude ?? (Array.isArray(item.point?.coordinates) ? item.point.coordinates[0] : undefined);
+      lat = Number(lat); lon = Number(lon);
+      if(!isFinite(lat) || !isFinite(lon)) return; // coordonnées introuvables : on ignore cette entrée
+
+      results.push({
+        name: item.name || query,
+        latitude: lat,
+        longitude: lon,
+        admin1: (item.region && item.region.name) || '',
+        country: (item.country && item.country.name) || '',
+        _yrSource: true,
+        _yrId: item.id || null
+      });
+    });
+    return results;
+  }catch(e){
+    console.error('Repli yr.no indisponible', e);
+    return [];
+  }
+}
+
 function renderSuggestions(idx, results){
   const list = document.getElementById(`suggest-${idx}`);
   list.innerHTML = '';
@@ -1219,7 +1257,7 @@ function renderSuggestions(idx, results){
   results.forEach(r => {
     const item = document.createElement('div');
     item.className = 'suggest-item';
-    const meta = [r.admin1, r.country].filter(Boolean).join(', ');
+    const meta = [r.admin1, r.country].filter(Boolean).join(', ') + (r._yrSource ? ' · via yr.no' : '');
     item.innerHTML = `<span class="s-name">${r.name}</span><span class="s-meta">${meta}</span>`;
     item.addEventListener('mousedown', (e) => {
       e.preventDefault(); // évite que le blur de l'input ne ferme la liste avant le clic
@@ -1230,7 +1268,17 @@ function renderSuggestions(idx, results){
 }
 
 function selectPlace(idx, r){
-  const { link, source } = buildWeatherLink(r);
+  let link, source;
+  if(r._yrSource){
+    // Résultat venant du repli yr.no : pas de correspondance meteoblue fiable, on pointe
+    // directement vers yr (page dédiée si on a un id, sinon recherche générique en repli).
+    link = r._yrId
+      ? `https://www.yr.no/en/forecast/graph/${encodeURIComponent(r._yrId)}`
+      : `https://www.yr.no/en/search?q=${encodeURIComponent(r.name)}`;
+    source = 'yr.no';
+  } else {
+    ({ link, source } = buildWeatherLink(r));
+  }
   const loc = {
     name: r.name,
     badge: buildBadge(r),
@@ -1275,7 +1323,13 @@ function setupSearch(idx){
     }
     debounceTimer = setTimeout(async () => {
       try{
-        const results = await searchPlaces(q);
+        let results = await searchPlaces(q);
+        if(!results.length){
+          // Rien trouvé côté Open-Meteo (cas fréquent pour cols, sommets, lieux-dits) :
+          // on tente yr.no. Si ça échoue aussi, searchYrFallback renvoie [] et on retombe
+          // simplement sur "Aucun résultat", sans casser la recherche.
+          results = await searchYrFallback(q);
+        }
         renderSuggestions(idx, results);
       }catch(e){
         console.error('Recherche de lieu impossible', e);
