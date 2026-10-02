@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relevés · 6 stations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#12161d">
@@ -40,13 +43,8 @@
     --precip: #5b9bd9;
     --wind: #6fcf97;
     --mono: 'IBM Plex Mono', 'Courier New', monospace;
-    --disp: 'Fraunces', 'Georgia', serif;
+    --disp: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
     --body: 'Inter', -apple-system, sans-serif;
-  }
-
-  @font-face{
-    font-family:'Fraunces';
-    src: local('Georgia');
   }
 
   *{box-sizing:border-box;}
@@ -720,6 +718,10 @@ function renderChart(idx, ranges){
         legend: { display: false },
         dayDividers: { dividers, labels: dayLabels },
         windRow: { points: windPoints },
+        axisUnit: { items: [
+          { scaleId: 'yPrecip', text: 'mm', color: '#5b9bd9' },
+          { scaleId: 'yWind', text: 'Bf', color: '#6fcf97' }
+        ]},
         tooltip: {
           backgroundColor: '#0e1218',
           titleFont: { family: 'IBM Plex Mono, monospace', size: 11 },
@@ -773,7 +775,7 @@ function renderChart(idx, ranges){
           position:'right',
           min: 0,
           max: ranges ? ranges.precMax : undefined,
-          ticks: { color:'#5b9bd9', font:{ size:9.5 }, callback:v=>v+'mm' },
+          ticks: { color:'#5b9bd9', font:{ size:9.5 }, callback:v=>v },
           grid: { display:false },
           beginAtZero:true,
           suggestedMax: 5
@@ -782,7 +784,7 @@ function renderChart(idx, ranges){
           position:'right',
           min: 0,
           max: 12,
-          ticks: { color:'#6fcf97', font:{ size:9.5 }, stepSize:2, callback:v=>'Bf '+v },
+          ticks: { color:'#6fcf97', font:{ size:9.5 }, stepSize:2, callback:v=>v },
           grid: { display:false }
         }
       }
@@ -1590,8 +1592,31 @@ const windRowPlugin = {
     });
   }
 };
+// Affiche l'unité d'un axe une seule fois (ex. "mm", "Bf"), centrée sur sa colonne de
+// graduations, à la même hauteur que les libellés d'heure — plutôt que répétée sur
+// chaque graduation ou accrochée au "0".
+const axisUnitPlugin = {
+  id: 'axisUnit',
+  afterDraw(chart){
+    const opts = chart.config.options.plugins.axisUnit;
+    if(!opts || !opts.items) return;
+    const { ctx, chartArea } = chart;
+    const y = chartArea.bottom + 11; // hauteur approximative des libellés d'heure de l'axe X
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.font = '9px IBM Plex Mono, monospace';
+    opts.items.forEach(item => {
+      const scale = chart.scales[item.scaleId];
+      if(!scale) return;
+      const xCenter = (scale.left + scale.right) / 2;
+      ctx.fillStyle = item.color;
+      ctx.fillText(item.text, xCenter, y);
+    });
+    ctx.restore();
+  }
+};
 if (typeof Chart !== 'undefined') {
-  try { Chart.register(dayDividerPlugin, windRowPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
+  try { Chart.register(dayDividerPlugin, windRowPlugin, axisUnitPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
 } else {
   console.error('Chart.js indisponible');
 }
