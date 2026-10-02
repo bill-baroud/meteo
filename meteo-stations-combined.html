@@ -4,13 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relevés · 6 stations</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#12161d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon.svg">
 <script>
 /* Chart.js v4.4.4 — embarqué localement (aucune dépendance CDN externe) */
 /*!
@@ -461,9 +454,6 @@
     <div class="scale-toggle" role="group" aria-label="Géolocalisation">
       <button type="button" id="use-my-location" title="Remplace le lieu de la 1ère carte par votre position approximative">Ma position</button>
       <button type="button" id="use-nearby-spread" title="Remplit les 6 cartes : votre position + 5 points à 20 km autour">Autour de moi</button>
-    </div>
-    <div class="scale-toggle" id="install-group" style="display:none;">
-      <button type="button" id="install-app">Installer l'appli</button>
     </div>
   </div>
 </header>
@@ -1732,37 +1722,6 @@ setupCitySelectButtons();
 setupGeolocationButton();
 setupNearbySpreadButton();
 window.addEventListener('beforeunload', saveSessionState);
-
-// --- PWA : enregistrement du service worker + bouton d'installation personnalisé ---
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch((e) => console.error('SW indisponible', e));
-  });
-}
-
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  const group = document.getElementById('install-group');
-  if(group) group.style.display = 'flex';
-});
-
-const installBtn = document.getElementById('install-app');
-if(installBtn){
-  installBtn.addEventListener('click', async () => {
-    if(!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    document.getElementById('install-group').style.display = 'none';
-  });
-}
-
-window.addEventListener('appinstalled', () => {
-  const group = document.getElementById('install-group');
-  if(group) group.style.display = 'none';
-});
 </script>
 
 </body>
