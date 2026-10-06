@@ -237,6 +237,20 @@
     font-size:10.5px;
   }
 
+  .cards-selector{ padding: 18px clamp(16px,4vw,48px) 0; }
+  .cards-selector-head{ display:flex; align-items:center; justify-content:space-between; }
+  .cards-selector + #grid{ padding-top:16px; }
+  .cards-empty{
+    display:none;
+    padding:40px clamp(16px,4vw,48px);
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    text-align:center;
+  }
+  .cards-empty.show{ display:block; }
+  .card.hidden{ display:none; }
+
   .compare-hint{
     font-family:var(--mono);
     font-size:11px;
@@ -468,7 +482,18 @@
 
 <main>
   <div id="cardsView" class="view-block active">
+    <div class="cards-selector">
+      <div class="cards-selector-head">
+        <span class="city-legend-title">Lieux affichés</span>
+        <div class="legend-select-buttons">
+          <button type="button" id="select-all-cards">Tous</button>
+          <button type="button" id="select-none-cards">Aucun</button>
+        </div>
+      </div>
+      <div class="city-legend" id="cards-city-legend"></div>
+    </div>
     <div id="grid"></div>
+    <p class="cards-empty" id="cards-empty">Aucun lieu sélectionné — cochez-en un ci-dessus.</p>
   </div>
 
   <div id="compareView" class="view-block" style="padding: 24px clamp(16px,4vw,48px) 60px;">
@@ -553,6 +578,15 @@ const CITY_COLORS = ['#e8975c', '#5b9bd9', '#6fcf97', '#c792ea', '#f2c94c', '#eb
 // Abréviations de jour à 3 lettres (dimanche = index 0, comme Date.getDay())
 const DAY3 = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 
+// Bandes de températures (°C) affichées en fond des graphes en °C
+const COMFORT_MIN = 16;
+const COMFORT_MAX = 22;
+const COMFORT_BANDS = [
+  { min: 10,          max: COMFORT_MIN, fill: 'rgba(91,155,217,0.10)',  edge: 'rgba(91,155,217,0.28)',  edgeMin: true,  edgeMax: false }, // frais
+  { min: COMFORT_MIN, max: COMFORT_MAX, fill: 'rgba(111,207,151,0.10)', edge: 'rgba(111,207,151,0.28)', edgeMin: true,  edgeMax: true  }, // confort
+  { min: COMFORT_MAX, max: 28,          fill: 'rgba(235,111,111,0.10)', edge: 'rgba(235,111,111,0.28)', edgeMin: false, edgeMax: true  }  // chaud
+];
+
 // État courant de chaque carte (mutable : remplacé lors d'une recherche)
 const currentLocations = LOCATIONS.map(l => ({ ...l }));
 const chartInstances = new Array(LOCATIONS.length).fill(null);
@@ -626,8 +660,8 @@ if(!storageAvailable){
 // pour permettre une comparaison visuelle directe entre les lieux.
 function computeSharedRanges(){
   let tempMin = Infinity, tempMax = -Infinity, precMax = 0;
-  locationSeries.forEach(s => {
-    if(!s) return;
+  locationSeries.forEach((s, i) => {
+    if(!s || !locationVisible[i]) return;
     s.temps.forEach(v => { if(v < tempMin) tempMin = v; if(v > tempMax) tempMax = v; });
     s.precs.forEach(v => { if(v > precMax) precMax = v; });
   });
@@ -718,6 +752,7 @@ function renderChart(idx, ranges){
         legend: { display: false },
         dayDividers: { dividers, labels: dayLabels },
         windRow: { points: windPoints },
+        comfortBand: { scaleId: 'yTemp', bands: COMFORT_BANDS },
         axisUnit: { items: [
           { scaleId: 'yPrecip', text: 'mm', color: '#5b9bd9' },
           { scaleId: 'yWind', text: 'Bf', color: '#6fcf97' }
@@ -797,7 +832,7 @@ function renderChart(idx, ranges){
 function syncAllCharts(){
   const ranges = computeSharedRanges();
   locationSeries.forEach((series, idx) => {
-    if(series) renderChart(idx, ranges);
+    if(series && locationVisible[idx]) renderChart(idx, ranges);
   });
 }
 
@@ -907,6 +942,8 @@ function renderCompareChart(){
       plugins: {
         legend: { display:false },
         dayDividers: { dividers, labels: dayLabels },
+        comfortBand: (currentMetric === 'temp' || currentMetric === 'feels')
+          ? { scaleId: 'y', bands: COMFORT_BANDS } : false,
         tooltip: {
           backgroundColor: '#0e1218',
           titleFont: { family:'IBM Plex Mono, monospace', size:11 },
@@ -941,25 +978,33 @@ function renderCompareChart(){
   });
 }
 
-function setupCitySelectButtons(){
-  const allBtn = document.getElementById('select-all-cities');
-  const noneBtn = document.getElementById('select-none-cities');
-  if(!allBtn || !noneBtn) return;
-
-  function setAll(value){
-    for(let i = 0; i < locationVisible.length; i++) locationVisible[i] = value;
+function onVisibilityChanged(){
+  renderCityLegend();
+  if(currentView === 'cards'){
+    applyCardsLayout();
+    syncAllCharts();
+  } else {
     renderCompareChart();
-    saveSessionState();
   }
-
-  allBtn.addEventListener('click', () => setAll(true));
-  noneBtn.addEventListener('click', () => setAll(false));
+  saveSessionState();
 }
 
+function setupCitySelectButtons(){
+  function setAll(value){
+    for(let i = 0; i < locationVisible.length; i++) locationVisible[i] = value;
+    onVisibilityChanged();
+  }
+  [['select-all-cities','select-none-cities'], ['select-all-cards','select-none-cards']].forEach(([allId, noneId]) => {
+    const allBtn = document.getElementById(allId);
+    const noneBtn = document.getElementById(noneId);
+    if(allBtn) allBtn.addEventListener('click', () => setAll(true));
+    if(noneBtn) noneBtn.addEventListener('click', () => setAll(false));
+  });
+}
+
+// La sélection des lieux (cases à cocher) est commune aux vues Cartes et Comparaison.
 function renderCityLegend(){
-  const el = document.getElementById('city-legend');
-  if(!el) return;
-  el.innerHTML = currentLocations.map((loc, idx) => `
+  const html = currentLocations.map((loc, idx) => `
     <label class="city-legend-item">
       <input type="checkbox" class="city-toggle" data-idx="${idx}" ${locationVisible[idx] ? 'checked' : ''} />
       <span class="dot" style="background:${CITY_COLORS[idx % CITY_COLORS.length]}"></span>
@@ -968,20 +1013,62 @@ function renderCityLegend(){
     </label>
   `).join('');
 
-  el.querySelectorAll('.city-toggle').forEach(input => {
-    input.addEventListener('change', () => {
-      const idx = Number(input.dataset.idx);
-      locationVisible[idx] = input.checked;
-      renderCompareChart();
-      saveSessionState();
+  ['city-legend', 'cards-city-legend'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = html;
+    el.querySelectorAll('.city-toggle').forEach(input => {
+      input.addEventListener('change', () => {
+        locationVisible[Number(input.dataset.idx)] = input.checked;
+        onVisibilityChanged();
+      });
     });
   });
+}
+
+// Vue Cartes : n'affiche que les lieux cochés et adapte la grille à leur nombre.
+// 1 lieu occupe toute la fenêtre ; de 2 à 6, colonnes et hauteur de ligne s'ajustent
+// (hauteur minimale conservée pour que les graphes restent lisibles, quitte à défiler).
+const CARD_MIN_HEIGHT = 390;
+const GRID_GAP = 18;
+
+function layoutCols(n, maxCols){
+  if(n <= 1) return 1;
+  if(n === 2 || n === 4) return Math.min(2, maxCols);
+  return Math.min(3, maxCols);
+}
+
+function applyCardsLayout(){
+  const visibleCount = locationVisible.filter(Boolean).length;
+  currentLocations.forEach((loc, idx) => {
+    const card = document.getElementById(`card-${idx}`);
+    if(card) card.classList.toggle('hidden', !locationVisible[idx]);
+  });
+  const emptyEl = document.getElementById('cards-empty');
+  if(emptyEl) emptyEl.classList.toggle('show', visibleCount === 0);
+  if(currentView !== 'cards' || visibleCount === 0) return;
+
+  const w = window.innerWidth;
+  const maxCols = w > 1000 ? 3 : (w > 650 ? 2 : 1);
+  const cols = layoutCols(visibleCount, maxCols);
+  const rows = Math.ceil(visibleCount / cols);
+
+  const style = getComputedStyle(grid);
+  const padTop = parseFloat(style.paddingTop) || 0;
+  const gridTop = grid.getBoundingClientRect().top + window.scrollY;
+  const available = window.innerHeight - gridTop - padTop - 16;
+  const rowH = Math.max(CARD_MIN_HEIGHT, Math.floor((available - GRID_GAP * (rows - 1)) / rows));
+
+  grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  grid.style.gridAutoRows = `${rowH}px`;
 }
 
 // Redessine la vue actuellement affichée (cartes ou comparaison) — appelé après tout
 // changement de données pour ne jamais construire un graphique sur un canvas caché.
 function refreshCurrentView(){
   if(currentView === 'cards'){
+    renderCityLegend(); // noms à jour si un lieu a été changé (recherche, position…)
+    applyCardsLayout();
     syncAllCharts();
   } else {
     renderCompareChart();
@@ -1489,6 +1576,7 @@ function setupSearch(idx){
 function buildCardShell(loc, idx){
   const card = document.createElement('div');
   card.className = 'card';
+  card.id = `card-${idx}`;
   card.innerHTML = `
     <div class="search-row">
       <input type="text" id="search-${idx}" placeholder="Rechercher un lieu…" autocomplete="off" />
@@ -1615,8 +1703,42 @@ const axisUnitPlugin = {
     ctx.restore();
   }
 };
+// Bandes de température en fond de graphe (froid / confort / chaud), tracées derrière les courbes.
+// Chaque bande est masquée si la plage affichée ne la contient pas, et tronquée aux bords sinon.
+const comfortBandPlugin = {
+  id: 'comfortBand',
+  beforeDatasetsDraw(chart){
+    const opts = chart.config.options.plugins.comfortBand;
+    if(!opts || !opts.scaleId || !opts.bands) return;
+    const scale = chart.scales[opts.scaleId];
+    if(!scale) return;
+    const { ctx, chartArea } = chart;
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    opts.bands.forEach(b => {
+      const pxMax = scale.getPixelForValue(b.max);
+      const pxMin = scale.getPixelForValue(b.min);
+      const yTop = Math.max(pxMax, chartArea.top);
+      const yBottom = Math.min(pxMin, chartArea.bottom);
+      if(yTop >= yBottom) return;
+      ctx.fillStyle = b.fill;
+      ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
+      ctx.strokeStyle = b.edge;
+      [[pxMax, b.edgeMax], [pxMin, b.edgeMin]].forEach(([py, wanted]) => {
+        if(wanted && py >= chartArea.top && py <= chartArea.bottom){
+          ctx.beginPath();
+          ctx.moveTo(chartArea.left, py);
+          ctx.lineTo(chartArea.right, py);
+          ctx.stroke();
+        }
+      });
+    });
+    ctx.restore();
+  }
+};
 if (typeof Chart !== 'undefined') {
-  try { Chart.register(dayDividerPlugin, windRowPlugin, axisUnitPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
+  try { Chart.register(dayDividerPlugin, windRowPlugin, axisUnitPlugin, comfortBandPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
 } else {
   console.error('Chart.js indisponible');
 }
@@ -1748,6 +1870,8 @@ async function loadLocation(idx){
 // On construit d'abord toutes les cartes (toujours visibles),
 // puis on charge les données/graphes indépendamment pour chacune.
 currentLocations.forEach((loc, idx) => buildCardShell(loc, idx));
+renderCityLegend();
+applyCardsLayout();
 LOCATIONS.forEach((loc, idx) => loadLocation(idx));
 setupScaleToggle();
 setupViewToggle();
@@ -1757,6 +1881,7 @@ setupCitySelectButtons();
 setupGeolocationButton();
 setupNearbySpreadButton();
 window.addEventListener('beforeunload', saveSessionState);
+window.addEventListener('resize', () => { if(currentView === 'cards') applyCardsLayout(); });
 
 // --- PWA : enregistrement du service worker + bouton d'installation personnalisé ---
 if('serviceWorker' in navigator){
