@@ -239,7 +239,8 @@
 
   .cards-selector{ padding: 18px clamp(16px,4vw,48px) 0; }
   .cards-selector-head{ display:flex; align-items:center; justify-content:space-between; }
-  .cards-selector + #grid{ padding-top:16px; }
+  #grid{ padding-bottom:8px; }
+  .cards-selector{ padding-top:10px; padding-bottom:18px; }
   .cards-empty{
     display:none;
     padding:40px clamp(16px,4vw,48px);
@@ -255,11 +256,11 @@
     font-family:var(--mono);
     font-size:11px;
     color:var(--ink-dim);
-    margin: 0 0 16px;
+    margin: 14px 0 0;
   }
 
   #grid{
-    padding: 28px clamp(16px,4vw,48px) 60px;
+    padding: 20px clamp(16px,4vw,48px) 8px;
     display:grid;
     grid-template-columns: repeat(3, 1fr);
     gap:18px;
@@ -450,6 +451,52 @@
 </head>
 <body>
 
+<main>
+  <div id="cardsView" class="view-block active">
+    <div id="grid"></div>
+    <p class="cards-empty" id="cards-empty">Aucun lieu sélectionné — cochez-en un ci-dessous.</p>
+    <div class="cards-selector">
+      <div class="cards-selector-head">
+        <span class="city-legend-title">Lieux affichés</span>
+        <div class="legend-select-buttons">
+          <button type="button" id="select-all-cards">Tous</button>
+          <button type="button" id="select-none-cards">Aucun</button>
+        </div>
+      </div>
+      <div class="city-legend" id="cards-city-legend"></div>
+    </div>
+  </div>
+
+  <div id="compareView" class="view-block" style="padding: 20px clamp(16px,4vw,48px) 24px;">
+    <div class="compare-card">
+      <div class="compare-chart-wrap"><canvas id="compare-chart"></canvas></div>
+      <div class="toggle-group" style="margin:14px 0 6px;">
+        <div class="scale-toggle" role="group" aria-label="Grandeur affichée">
+          <button type="button" id="metric-temp" class="active">Température</button>
+          <button type="button" id="metric-dewpoint">Point de rosée</button>
+          <button type="button" id="metric-feels">Ressenti</button>
+          <button type="button" id="metric-humidity">Humidité</button>
+          <button type="button" id="metric-precip">Précipitations</button>
+          <button type="button" id="metric-wind">Vent</button>
+          <button type="button" id="metric-gust">Rafales</button>
+          <button type="button" id="metric-cape">CAPE</button>
+          <button type="button" id="metric-freezing">Niveau de gel</button>
+          <button type="button" id="metric-aqi">Qualité de l'air</button>
+        </div>
+      </div>
+      <div class="city-legend-header">
+        <span class="city-legend-title">Lieux affichés</span>
+        <div class="legend-select-buttons">
+          <button type="button" id="select-all-cities">Tous</button>
+          <button type="button" id="select-none-cities">Aucun</button>
+        </div>
+      </div>
+      <div class="city-legend" id="city-legend"></div>
+      <p class="compare-hint">Les 6 lieux superposés sur un même axe — chaque courbe garde l'heure locale de son fuseau. Pour changer un lieu, utilisez la recherche depuis la vue « Cartes ».</p>
+    </div>
+  </div>
+</main>
+
 <header>
   <div class="legend-bar" id="cards-legend">
     <span><span class="swatch" style="background:var(--temp)"></span>Température (min/max)</span>
@@ -479,52 +526,6 @@
     </div>
   </div>
 </header>
-
-<main>
-  <div id="cardsView" class="view-block active">
-    <div class="cards-selector">
-      <div class="cards-selector-head">
-        <span class="city-legend-title">Lieux affichés</span>
-        <div class="legend-select-buttons">
-          <button type="button" id="select-all-cards">Tous</button>
-          <button type="button" id="select-none-cards">Aucun</button>
-        </div>
-      </div>
-      <div class="city-legend" id="cards-city-legend"></div>
-    </div>
-    <div id="grid"></div>
-    <p class="cards-empty" id="cards-empty">Aucun lieu sélectionné — cochez-en un ci-dessus.</p>
-  </div>
-
-  <div id="compareView" class="view-block" style="padding: 24px clamp(16px,4vw,48px) 60px;">
-    <div class="toggle-group" style="margin-bottom:16px;">
-      <div class="scale-toggle" role="group" aria-label="Grandeur affichée">
-        <button type="button" id="metric-temp" class="active">Température</button>
-        <button type="button" id="metric-dewpoint">Point de rosée</button>
-        <button type="button" id="metric-feels">Ressenti</button>
-        <button type="button" id="metric-humidity">Humidité</button>
-        <button type="button" id="metric-precip">Précipitations</button>
-        <button type="button" id="metric-wind">Vent</button>
-        <button type="button" id="metric-gust">Rafales</button>
-        <button type="button" id="metric-cape">CAPE</button>
-        <button type="button" id="metric-freezing">Niveau de gel</button>
-        <button type="button" id="metric-aqi">Qualité de l'air</button>
-      </div>
-    </div>
-    <div class="compare-card">
-      <p class="compare-hint">Les 6 lieux superposés sur un même axe — chaque courbe garde l'heure locale de son fuseau. Pour changer un lieu, utilisez la recherche depuis la vue « Cartes ».</p>
-      <div class="compare-chart-wrap"><canvas id="compare-chart"></canvas></div>
-      <div class="city-legend-header">
-        <span class="city-legend-title">Lieux affichés</span>
-        <div class="legend-select-buttons">
-          <button type="button" id="select-all-cities">Tous</button>
-          <button type="button" id="select-none-cities">Aucun</button>
-        </div>
-      </div>
-      <div class="city-legend" id="city-legend"></div>
-    </div>
-  </div>
-</main>
 
 <footer>Données · Open‑Meteo.com — mise à jour à chaque chargement de page.</footer>
 
@@ -577,6 +578,14 @@ const CITY_COLORS = ['#e8975c', '#5b9bd9', '#6fcf97', '#c792ea', '#f2c94c', '#eb
 
 // Abréviations de jour à 3 lettres (dimanche = index 0, comme Date.getDay())
 const DAY3 = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const MONTH3 = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+// "2026-10-07T14:00" (heure locale du lieu) -> "Mer 7 oct. · 14:00"
+function formatTooltipTitle(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso || '');
+  if(!m) return '';
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  return `${DAY3[d.getDay()]} ${+m[3]} ${MONTH3[+m[2]-1]} · ${m[4]}:${m[5]}`;
+}
 
 // Bandes de températures (°C) affichées en fond des graphes en °C
 const COMFORT_MIN = 16;
@@ -765,6 +774,7 @@ function renderChart(idx, ranges){
           borderWidth: 1,
           padding: 8,
           callbacks: {
+            title: (items) => items.length ? formatTooltipTitle(series.times && series.times[items[0].dataIndex]) : '',
             label: (ctx) => {
               if(ctx.dataset.yAxisID === 'yWind') return `Vent : force ${Math.round(ctx.parsed.y)} Beaufort`;
               if(ctx.dataset.yAxisID === 'yPrecip') return `Précip. : ${ctx.parsed.y.toFixed(1)} mm`;
@@ -870,6 +880,7 @@ function renderCompareChart(){
       datasets.push({
         label: `${loc.name} — Température`,
         data: series.temps,
+        _locIdx: idx,
         borderColor: color,
         backgroundColor: color,
         borderWidth: 2,
@@ -883,6 +894,7 @@ function renderCompareChart(){
       datasets.push({
         label: `${loc.name} — Point de rosée`,
         data: series.dewSeries,
+        _locIdx: idx,
         borderColor: color,
         backgroundColor: color,
         borderDash: [5,3],
@@ -898,6 +910,7 @@ function renderCompareChart(){
       datasets.push({
         label: loc.name,
         data: values,
+        _locIdx: idx,
         borderColor: color,
         backgroundColor: color,
         borderWidth: 2,
@@ -952,6 +965,12 @@ function renderCompareChart(){
           borderWidth: 1,
           padding: 8,
           callbacks: {
+            title: (items) => {
+              if(!items.length) return '';
+              const it = items[0];
+              const ser = locationSeries[it.dataset._locIdx];
+              return formatTooltipTitle(ser && ser.times && ser.times[it.dataIndex]) || it.label;
+            },
             label: (ctx) => `${ctx.dataset.label} : ${metric.tooltipFmt(ctx.parsed.y)}`
           }
         }
@@ -1738,7 +1757,33 @@ const comfortBandPlugin = {
   }
 };
 if (typeof Chart !== 'undefined') {
-  try { Chart.register(dayDividerPlugin, windRowPlugin, axisUnitPlugin, comfortBandPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
+  // --- Fermeture des bulles en 1 seul geste ---
+// Tactile : un tap hors graphique ferme toutes les bulles ; un tap sur un graphique dont la bulle
+// est affichée la ferme (au lieu de la déplacer). Les événements souris « de compatibilité »
+// émis après un tap sont ignorés pendant 500 ms pour ne pas la rouvrir aussitôt.
+let tooltipSuppressUntil = 0;
+const tooltipDismissPlugin = {
+  id: 'tooltipDismiss',
+  beforeEvent(chart){ if(performance.now() < tooltipSuppressUntil) return false; }
+};
+function hideChartTooltip(c){
+  if(!c || !c.tooltip) return;
+  c.tooltip.setActiveElements([], { x:0, y:0 });
+  c.setActiveElements([]);
+  c.update('none');
+}
+document.addEventListener('pointerdown', (e) => {
+  const canvas = e.target && e.target.closest ? e.target.closest('canvas') : null;
+  const hit = canvas ? Chart.getChart(canvas) : null;
+  const all = [...chartInstances, compareChartInstance].filter(Boolean);
+  all.forEach(c => { if(c !== hit && c.tooltip && c.tooltip.getActiveElements().length) hideChartTooltip(c); });
+  if(hit && e.pointerType !== 'mouse' && hit.tooltip.getActiveElements().length){
+    hideChartTooltip(hit);
+    tooltipSuppressUntil = performance.now() + 500;
+  }
+}, true);
+
+try { Chart.register(dayDividerPlugin, windRowPlugin, axisUnitPlugin, comfortBandPlugin, tooltipDismissPlugin); } catch(e) { console.error('Chart.js: échec de l’enregistrement des plugins', e); }
 } else {
   console.error('Chart.js indisponible');
 }
@@ -1805,6 +1850,7 @@ async function loadLocation(idx){
       const d = new Date(h.time[i]);
       return d.getHours().toString().padStart(2,'0') + 'h';
     });
+    const times = sampleIdx.map(i => h.time[i]);
     const temps = sampleIdx.map(i => h.temperature_2m[i]);
     const precs = sampleIdx.map(i => h.precipitation[i]);
     const windSeries = sampleIdx.map(i => kmhToBeaufort(h.wind_speed_10m[i]));
@@ -1856,7 +1902,7 @@ async function loadLocation(idx){
       return;
     }
 
-    locationSeries[idx] = { labels, temps, precs, windSeries, feelsSeries, dewSeries, humiditySeries, gustSeries, capeSeries, freezingSeries, aqiSeries, dividers, dayLabels, windPoints };
+    locationSeries[idx] = { labels, times, temps, precs, windSeries, feelsSeries, dewSeries, humiditySeries, gustSeries, capeSeries, freezingSeries, aqiSeries, dividers, dayLabels, windPoints };
     refreshCurrentView();
 
   }catch(err){
