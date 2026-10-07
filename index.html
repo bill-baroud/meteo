@@ -60,18 +60,21 @@
   }
 
   header{
-    padding: 22px clamp(16px,4vw,48px);
-    border-bottom: 1px solid var(--panel-line);
+    padding: 10px clamp(16px,4vw,48px);
+    border-top: 1px solid var(--panel-line);
     display:flex;
     align-items:center;
     justify-content:space-between;
     flex-wrap:wrap;
-    gap:16px;
+    gap:8px 16px;
   }
+  header .scale-toggle button{ padding:4px 12px; }
+  header .scale-toggle{ padding:2px; }
+  header .day-nav-label{ padding:4px 4px; }
 
   .legend-bar{
     display:flex;
-    gap:22px;
+    gap:6px 18px;
     flex-wrap:wrap;
     font-family:var(--mono);
     font-size:11.5px;
@@ -119,7 +122,7 @@
 
   .toggle-group{
     display:flex;
-    gap:10px;
+    gap:8px;
     flex-wrap:wrap;
     align-items:center;
   }
@@ -238,7 +241,10 @@
   }
 
   .cards-selector{ padding: 18px clamp(16px,4vw,48px) 0; }
-  .cards-selector-head{ display:flex; align-items:center; justify-content:space-between; }
+  .legend-row{ display:flex; align-items:flex-start; gap:10px 16px; flex-wrap:wrap; }
+  .legend-row .legend-select-buttons{ flex:0 0 auto; padding-top:1px; }
+  .legend-row .city-legend{ flex:1 1 280px; margin-top:0; }
+  .legend-row-compare{ margin-top:16px; padding-top:14px; border-top:1px solid var(--panel-line); }
   #grid{ padding-bottom:8px; }
   .cards-selector{ padding-top:10px; padding-bottom:18px; }
   .cards-empty{
@@ -456,14 +462,13 @@
     <div id="grid"></div>
     <p class="cards-empty" id="cards-empty">Aucun lieu sélectionné — cochez-en un ci-dessous.</p>
     <div class="cards-selector">
-      <div class="cards-selector-head">
-        <span class="city-legend-title">Lieux affichés</span>
+      <div class="legend-row">
         <div class="legend-select-buttons">
           <button type="button" id="select-all-cards">Tous</button>
           <button type="button" id="select-none-cards">Aucun</button>
         </div>
+        <div class="city-legend" id="cards-city-legend"></div>
       </div>
-      <div class="city-legend" id="cards-city-legend"></div>
     </div>
   </div>
 
@@ -484,14 +489,13 @@
           <button type="button" id="metric-aqi">Qualité de l'air</button>
         </div>
       </div>
-      <div class="city-legend-header">
-        <span class="city-legend-title">Lieux affichés</span>
+      <div class="legend-row legend-row-compare">
         <div class="legend-select-buttons">
           <button type="button" id="select-all-cities">Tous</button>
           <button type="button" id="select-none-cities">Aucun</button>
         </div>
+        <div class="city-legend" id="city-legend"></div>
       </div>
-      <div class="city-legend" id="city-legend"></div>
       <p class="compare-hint">Les 6 lieux superposés sur un même axe — chaque courbe garde l'heure locale de son fuseau. Pour changer un lieu, utilisez la recherche depuis la vue « Cartes ».</p>
     </div>
   </div>
