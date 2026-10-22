@@ -3,7 +3,7 @@
 // même sans réseau), mais ne touche JAMAIS aux appels vers les API météo — elles doivent
 // toujours revenir du réseau pour rester à jour.
 
-const CACHE_NAME = 'meteo-6-stations-shell-v1';
+const CACHE_NAME = 'meteo-6-stations-shell-v2';
 const SHELL_FILES = [
   './',
   './index.html',

@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#12161d">
+<meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -34,14 +34,14 @@
 </script>
 <style>
   :root{
-    --bg: #12161d;
-    --panel: #1a2029;
-    --panel-line: #2a3341;
-    --ink: #e7ebf1;
-    --ink-dim: #8b96a5;
-    --temp: #e8975c;
-    --precip: #5b9bd9;
-    --wind: #6fcf97;
+    --bg: #000000;
+    --panel: #0b0e13;
+    --panel-line: #3a4556;
+    --ink: #f4f7fb;
+    --ink-dim: #b9c3d0;
+    --temp: #ffa866;
+    --precip: #6db3f2;
+    --wind: #7ee2a8;
     --mono: 'IBM Plex Mono', 'Courier New', monospace;
     --disp: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
     --body: 'Inter', -apple-system, sans-serif;
@@ -51,9 +51,7 @@
 
   html,body{
     margin:0;
-    background:
-      radial-gradient(ellipse 900px 500px at 15% -10%, #1c2836 0%, transparent 60%),
-      var(--bg);
+    background: var(--bg);
     color:var(--ink);
     font-family:var(--body);
     min-height:100vh;
@@ -86,7 +84,7 @@
   .scale-toggle{
     display:flex;
     flex-wrap:wrap;
-    background:#12161d;
+    background:#0b0e13;
     border:1px solid var(--panel-line);
     border-radius:20px;
     padding:3px;
@@ -172,7 +170,7 @@
   .legend-select-buttons button{
     appearance:none;
     border:1px solid var(--panel-line);
-    background:#12161d;
+    background:#0b0e13;
     color:var(--ink-dim);
     font-family:var(--mono);
     font-size:11px;
@@ -207,7 +205,7 @@
     width:14px;height:14px;
     border:1px solid var(--panel-line);
     border-radius:4px;
-    background:#12161d;
+    background:#0b0e13;
     cursor:pointer;
     position:relative;
     flex-shrink:0;
@@ -266,10 +264,10 @@
   }
 
   #grid{
-    padding: 20px clamp(16px,4vw,48px) 8px;
+    padding: 10px clamp(10px,3vw,48px) 6px;
     display:grid;
     grid-template-columns: repeat(3, 1fr);
-    gap:18px;
+    gap:10px;
   }
   @media (max-width:1000px){ #grid{grid-template-columns:repeat(2,1fr);} }
   @media (max-width:650px){ #grid{grid-template-columns:1fr;} }
@@ -278,10 +276,10 @@
     background:var(--panel);
     border:1px solid var(--panel-line);
     border-radius:10px;
-    padding:18px 18px 14px;
+    padding:10px 12px 8px;
     display:flex;
     flex-direction:column;
-    min-height:390px;
+    min-height:340px;
     position:relative;
     overflow:hidden;
   }
@@ -294,28 +292,28 @@
 
   .search-row{
     position:relative;
-    margin-bottom:12px;
+    margin-bottom:6px;
   }
   .search-row input{
     width:100%;
-    background:#12161d;
+    background:#0b0e13;
     border:1px solid var(--panel-line);
     border-radius:6px;
     color:var(--ink);
     font-family:var(--mono);
     font-size:12px;
-    padding:8px 10px;
+    padding:5px 9px;
     outline:none;
     transition: border-color .15s ease;
   }
-  .search-row input::placeholder{ color:#5a6472; }
+  .search-row input::placeholder{ color:#97a2b1; }
   .search-row input:focus{ border-color:var(--wind); }
 
   .suggest-list{
     position:absolute;
     top:calc(100% + 4px);
     left:0; right:0;
-    background:#151b24;
+    background:#0b0e13;
     border:1px solid var(--panel-line);
     border-radius:8px;
     overflow:hidden;
@@ -345,9 +343,11 @@
   .card-head{
     display:flex;
     justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:2px;
+    align-items:center;
+    gap:6px;
+    margin-bottom:0;
   }
+  .card-head > div{ min-width:0; }
   .place-name{
     font-family:var(--disp);
     font-size:19px;
@@ -366,7 +366,7 @@
   }
   .windy-link{
     font-family:var(--mono);
-    font-size:9.5px;
+    font-size:10.5px;
     font-weight:400;
     color:var(--ink-dim) !important;
     border:1px solid var(--panel-line) !important;
@@ -389,7 +389,7 @@
   }
   .badge{
     font-family:var(--mono);
-    font-size:9.5px;
+    font-size:10.5px;
     letter-spacing:.1em;
     text-transform:uppercase;
     color:var(--ink-dim);
@@ -411,7 +411,7 @@
     display:flex;
     align-items:baseline;
     gap:10px;
-    margin: 12px 0 8px;
+    margin: 4px 0 2px;
   }
   .now-temp{
     font-family:var(--disp);
@@ -421,16 +421,18 @@
   }
   .now-detail{
     font-family:var(--mono);
-    font-size:11px;
+    font-size:12px;
     color:var(--ink-dim);
-    line-height:1.6;
+    line-height:1.45;
+    white-space:nowrap;
   }
+  .now-detail b{ font-weight:500; color:var(--ink); }
 
   .chart-wrap{
     flex:1;
-    min-height:220px;
+    min-height:200px;
     position:relative;
-    margin-top:4px;
+    margin-top:2px;
   }
 
   .state{
@@ -443,7 +445,7 @@
   .state.err{ color:#d9756b; }
 
   footer{
-    padding: 0 clamp(16px,4vw,48px) 40px;
+    padding: 0 clamp(16px,4vw,48px) 14px;
     font-family:var(--mono);
     font-size:10.5px;
     color:var(--ink-dim);
@@ -514,6 +516,7 @@
     </div>
     <div class="scale-toggle" role="group" aria-label="Échelle de temps">
       <button type="button" id="scale-jour" class="active">Jour</button>
+      <button type="button" id="scale-jours3">3 jours</button>
       <button type="button" id="scale-semaine">Semaine</button>
     </div>
     <div class="scale-toggle" id="day-nav" role="group" aria-label="Navigation jour" style="display:none;">
@@ -531,17 +534,17 @@
   </div>
 </header>
 
-<footer>Données · Open‑Meteo.com — mise à jour à chaque chargement de page.</footer>
+<footer>Données · Open‑Meteo.com</footer>
 
 <script>
 const LOCATIONS = [
-  { name:"Paris — 19e",     badge:"Ville",   lat:48.8809,  lon:2.3820,   tz:"Europe/Paris",
+  { name:"Paris — 19e",     badge:"",        lat:48.8809,  lon:2.3820,   tz:"Europe/Paris",
     link:"https://www.meteoblue.com/en/weather/week/paris-19_france_6618625", source:"meteoblue" },
-  { name:"Rennes",          badge:"Ville",   lat:48.1173,  lon:-1.6778,  tz:"Europe/Paris",
+  { name:"Rennes",          badge:"",        lat:48.1173,  lon:-1.6778,  tz:"Europe/Paris",
     link:"https://www.meteoblue.com/en/weather/week/rennes_france_2983990", source:"meteoblue" },
-  { name:"Saint-Malo",      badge:"Ville",   lat:48.6493,  lon:-2.0257,  tz:"Europe/Paris",
+  { name:"Saint-Malo",      badge:"",        lat:48.6493,  lon:-2.0257,  tz:"Europe/Paris",
     link:"https://www.meteoblue.com/en/weather/week/saint-malo_france_6454049", source:"meteoblue" },
-  { name:"Bruxelles",       badge:"Ville",   lat:50.8503,  lon:4.3517,   tz:"Europe/Brussels",
+  { name:"Bruxelles",       badge:"",        lat:50.8503,  lon:4.3517,   tz:"Europe/Brussels",
     link:"https://www.meteoblue.com/en/weather/week/brussels_belgium_2800866", source:"meteoblue" },
   { name:"Passo di Pontimia", badge:"Col · 2379 m", lat:46.1228, lon:8.1149, tz:"Europe/Zurich",
     link:"https://www.yr.no/en/forecast/graph/2-11075416/Italy/Piedmont/Verbania/Passo%20di%20Pontimia", source:"yr.no" },
@@ -553,6 +556,7 @@ const grid = document.getElementById('grid');
 
 // Paramètres propres à chaque échelle de temps
 const SCALE_CONFIG = {
+  jours3:  { forecastDays: 3, step: 2, windMod: 2, maxTicks: 9 },
   semaine: { forecastDays: 7, step: 3, windMod: 2, maxTicks: 14 },
   jour:    { forecastDays: 1, step: 1, windMod: 3, maxTicks: 12 },
 };
@@ -578,7 +582,7 @@ const METRIC_CONFIG = {
 };
 
 // Une couleur distincte par ville (pas par grandeur, ici) pour la vue superposée
-const CITY_COLORS = ['#e8975c', '#5b9bd9', '#6fcf97', '#c792ea', '#f2c94c', '#eb6f6f'];
+const CITY_COLORS = ['#ffa866', '#6db3f2', '#7ee2a8', '#d6a8f5', '#f7d560', '#f58585'];
 
 // Abréviations de jour à 3 lettres (dimanche = index 0, comme Date.getDay())
 const DAY3 = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
@@ -595,9 +599,9 @@ function formatTooltipTitle(iso){
 const COMFORT_MIN = 16;
 const COMFORT_MAX = 22;
 const COMFORT_BANDS = [
-  { min: 10,          max: COMFORT_MIN, fill: 'rgba(91,155,217,0.10)',  edge: 'rgba(91,155,217,0.28)',  edgeMin: true,  edgeMax: false }, // frais
-  { min: COMFORT_MIN, max: COMFORT_MAX, fill: 'rgba(111,207,151,0.10)', edge: 'rgba(111,207,151,0.28)', edgeMin: true,  edgeMax: true  }, // confort
-  { min: COMFORT_MAX, max: 28,          fill: 'rgba(235,111,111,0.10)', edge: 'rgba(235,111,111,0.28)', edgeMin: false, edgeMax: true  }  // chaud
+  { min: 10,          max: COMFORT_MIN, fill: 'rgba(109,179,242,0.15)',  edge: 'rgba(109,179,242,0.42)',  edgeMin: true,  edgeMax: false }, // frais
+  { min: COMFORT_MIN, max: COMFORT_MAX, fill: 'rgba(126,226,168,0.15)', edge: 'rgba(126,226,168,0.42)', edgeMin: true,  edgeMax: true  }, // confort
+  { min: COMFORT_MAX, max: 28,          fill: 'rgba(245,133,133,0.15)', edge: 'rgba(245,133,133,0.42)', edgeMin: false, edgeMax: true  }  // chaud
 ];
 
 // État courant de chaque carte (mutable : remplacé lors d'une recherche)
@@ -649,7 +653,7 @@ function loadSessionState(){
     if(Array.isArray(state.locations)){
       state.locations.slice(0, 6).forEach((loc, idx) => { currentLocations[idx] = loc; });
     }
-    if(state.scale === 'jour' || state.scale === 'semaine') currentScale = state.scale;
+    if(state.scale === 'jour' || state.scale === 'jours3' || state.scale === 'semaine') currentScale = state.scale;
     if(state.view === 'cards' || state.view === 'compare') currentView = state.view;
     if(state.metric && METRIC_CONFIG[state.metric]) currentMetric = state.metric;
     if(Array.isArray(state.visible)){
@@ -706,8 +710,8 @@ function renderChart(idx, ranges){
 
   const ctx2d = canvasEl.getContext('2d');
   const tempFill = ctx2d.createLinearGradient(0,0,0,180);
-  tempFill.addColorStop(0, 'rgba(232,151,92,0.28)');
-  tempFill.addColorStop(1, 'rgba(232,151,92,0)');
+  tempFill.addColorStop(0, 'rgba(255,168,102,0.30)');
+  tempFill.addColorStop(1, 'rgba(255,168,102,0)');
 
   const { labels, temps, precs, windSeries, dividers, dayLabels, windPoints } = series;
 
@@ -720,7 +724,7 @@ function renderChart(idx, ranges){
           type: 'bar',
           label: 'Précipitations (mm)',
           data: precs,
-          backgroundColor: 'rgba(91,155,217,0.6)',
+          backgroundColor: 'rgba(109,179,242,0.75)',
           borderRadius: 2,
           barPercentage: 0.65,
           yAxisID: 'yPrecip',
@@ -730,7 +734,7 @@ function renderChart(idx, ranges){
           type: 'line',
           label: 'Température (°C)',
           data: temps,
-          borderColor: '#e8975c',
+          borderColor: '#ffa866',
           backgroundColor: tempFill,
           fill: true,
           pointRadius: 0,
@@ -744,8 +748,8 @@ function renderChart(idx, ranges){
           type: 'line',
           label: 'Vent (km/h)',
           data: windSeries,
-          borderColor: '#6fcf97',
-          backgroundColor: '#6fcf97',
+          borderColor: '#7ee2a8',
+          backgroundColor: '#7ee2a8',
           borderDash: [4,2],
           pointRadius: 0,
           pointHoverRadius: 3,
@@ -767,14 +771,14 @@ function renderChart(idx, ranges){
         windRow: { points: windPoints },
         comfortBand: { scaleId: 'yTemp', bands: COMFORT_BANDS },
         axisUnit: { items: [
-          { scaleId: 'yPrecip', text: 'mm', color: '#5b9bd9' },
-          { scaleId: 'yWind', text: 'Bf', color: '#6fcf97' }
+          { scaleId: 'yPrecip', text: 'mm', color: '#6db3f2' },
+          { scaleId: 'yWind', text: 'Bf', color: '#7ee2a8' }
         ]},
         tooltip: {
-          backgroundColor: '#0e1218',
+          backgroundColor: '#05070a',
           titleFont: { family: 'IBM Plex Mono, monospace', size: 11 },
           bodyFont: { family: 'IBM Plex Mono, monospace', size: 10.5 },
-          borderColor: '#2a3341',
+          borderColor: '#5a677c',
           borderWidth: 1,
           padding: 8,
           callbacks: {
@@ -805,8 +809,8 @@ function renderChart(idx, ranges){
       scales: {
         x: {
           ticks: {
-            color:'#8b96a5',
-            font:{ family:'IBM Plex Mono, monospace', size:9.5 },
+            color:'#b9c3d0',
+            font:{ family:'IBM Plex Mono, monospace', size:10.5 },
             maxRotation:0,
             autoSkip:true,
             maxTicksLimit: SCALE_CONFIG[currentScale].maxTicks
@@ -817,14 +821,14 @@ function renderChart(idx, ranges){
           position:'left',
           min: ranges ? ranges.tempMin : undefined,
           max: ranges ? ranges.tempMax : undefined,
-          ticks: { color:'#e8975c', font:{ size:9.5 }, callback:v=>v+'°' },
-          grid: { color:'rgba(255,255,255,0.05)' }
+          ticks: { color:'#ffa866', font:{ size:10.5 }, callback:v=>v+'°' },
+          grid: { color:'rgba(255,255,255,0.11)' }
         },
         yPrecip: {
           position:'right',
           min: 0,
           max: ranges ? ranges.precMax : undefined,
-          ticks: { color:'#5b9bd9', font:{ size:9.5 }, callback:v=>v },
+          ticks: { color:'#6db3f2', font:{ size:10.5 }, callback:v=>v },
           grid: { display:false },
           beginAtZero:true,
           suggestedMax: 5
@@ -833,7 +837,7 @@ function renderChart(idx, ranges){
           position:'right',
           min: 0,
           max: 12,
-          ticks: { color:'#6fcf97', font:{ size:9.5 }, stepSize:2, callback:v=>v },
+          ticks: { color:'#7ee2a8', font:{ size:10.5 }, stepSize:2, callback:v=>v },
           grid: { display:false }
         }
       }
@@ -962,10 +966,10 @@ function renderCompareChart(){
         comfortBand: (currentMetric === 'temp' || currentMetric === 'feels')
           ? { scaleId: 'y', bands: COMFORT_BANDS } : false,
         tooltip: {
-          backgroundColor: '#0e1218',
+          backgroundColor: '#05070a',
           titleFont: { family:'IBM Plex Mono, monospace', size:11 },
           bodyFont: { family:'IBM Plex Mono, monospace', size:10.5 },
-          borderColor: '#2a3341',
+          borderColor: '#5a677c',
           borderWidth: 1,
           padding: 8,
           callbacks: {
@@ -982,8 +986,8 @@ function renderCompareChart(){
       scales: {
         x: {
           ticks: {
-            color:'#8b96a5',
-            font:{ family:'IBM Plex Mono, monospace', size:9.5 },
+            color:'#b9c3d0',
+            font:{ family:'IBM Plex Mono, monospace', size:10.5 },
             maxRotation:0,
             autoSkip:true,
             maxTicksLimit: SCALE_CONFIG[currentScale].maxTicks
@@ -993,8 +997,8 @@ function renderCompareChart(){
         y: {
           min: yMin,
           max: yMax,
-          ticks:{ color:'#c7cfda', font:{ size:10.5 }, callback: metric.axisFmt },
-          grid:{ color:'rgba(255,255,255,0.05)' }
+          ticks:{ color:'#e3e9f1', font:{ size:10.5 }, callback: metric.axisFmt },
+          grid:{ color:'rgba(255,255,255,0.11)' }
         }
       }
     }
@@ -1052,8 +1056,8 @@ function renderCityLegend(){
 // Vue Cartes : n'affiche que les lieux cochés et adapte la grille à leur nombre.
 // 1 lieu occupe toute la fenêtre ; de 2 à 6, colonnes et hauteur de ligne s'ajustent
 // (hauteur minimale conservée pour que les graphes restent lisibles, quitte à défiler).
-const CARD_MIN_HEIGHT = 390;
-const GRID_GAP = 18;
+const CARD_MIN_HEIGHT = 340;
+const GRID_GAP = 10;
 
 function layoutCols(n, maxCols){
   if(n <= 1) return 1;
@@ -1170,7 +1174,8 @@ function reloadAllLocations(){
 function setupScaleToggle(){
   const btnSemaine = document.getElementById('scale-semaine');
   const btnJour = document.getElementById('scale-jour');
-  const buttons = { semaine: btnSemaine, jour: btnJour };
+  const btnJours3 = document.getElementById('scale-jours3');
+  const buttons = { semaine: btnSemaine, jours3: btnJours3, jour: btnJour };
   const dayNav = document.getElementById('day-nav');
 
   function activate(scale){
@@ -1185,6 +1190,7 @@ function setupScaleToggle(){
   }
 
   btnSemaine.addEventListener('click', () => activate('semaine'));
+  btnJours3.addEventListener('click', () => activate('jours3'));
   btnJour.addEventListener('click', () => activate('jour'));
   // Synchronise l'affichage des boutons avec l'échelle courante (utile après restauration de session)
   Object.entries(buttons).forEach(([key, btn]) => btn.classList.toggle('active', key === currentScale));
@@ -1244,7 +1250,7 @@ function useMyLocation(){
     (pos) => {
       const loc = {
         name: "Ma position",
-        badge: "Position estimée",
+        badge: "",
         lat: pos.coords.latitude,
         lon: pos.coords.longitude,
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "auto",
@@ -1398,15 +1404,9 @@ function kmhToBeaufort(kmh){
   return Math.max(0, Math.min(12, bf));
 }
 
+// Badge minimal : altitude uniquement (région, pays et coordonnées ne sont plus affichés).
 function buildBadge(r){
-  const parts = [];
-  if(r.admin1 && r.admin1 !== r.name) parts.push(r.admin1);
-  if(r.country) parts.push(r.country);
-  let badge = parts.join(', ');
-  if(r.elevation && r.elevation > 300){
-    badge += (badge ? ' · ' : '') + Math.round(r.elevation) + ' m';
-  }
-  return badge || 'Lieu';
+  return (r.elevation && r.elevation > 300) ? Math.round(r.elevation) + ' m' : '';
 }
 
 function slugify(str){
@@ -1451,9 +1451,9 @@ function updateCardHead(idx, loc){
   nameLink.title = `Voir sur ${loc.source}`;
   const windyLink = document.getElementById(`windy-link-${idx}`);
   if(windyLink) windyLink.href = buildWindyLink(loc.lat, loc.lon);
-  document.getElementById(`badge-${idx}`).textContent = loc.badge;
-  document.getElementById(`coords-${idx}`).textContent =
-    `${Math.abs(loc.lat).toFixed(2)}°${loc.lat>=0?'N':'S'} · ${Math.abs(loc.lon).toFixed(2)}°${loc.lon>=0?'E':'O'}`;
+  const badgeEl = document.getElementById(`badge-${idx}`);
+  badgeEl.textContent = loc.badge;
+  badgeEl.style.display = loc.badge ? '' : 'none';
 }
 
 async function searchPlaces(query){
@@ -1611,9 +1611,8 @@ function buildCardShell(loc, idx){
           <a id="place-name-${idx}" href="${loc.link}" target="_blank" rel="noopener" title="Voir sur ${loc.source}">${loc.name}</a>
           <a class="windy-link" id="windy-link-${idx}" href="${buildWindyLink(loc.lat, loc.lon)}" target="_blank" rel="noopener" title="Voir sur Windy (pluie/tonnerre)">Windy</a>
         </div>
-        <div class="coords" id="coords-${idx}">${Math.abs(loc.lat).toFixed(2)}°${loc.lat>=0?'N':'S'} · ${Math.abs(loc.lon).toFixed(2)}°${loc.lon>=0?'E':'O'}</div>
       </div>
-      <span class="badge" id="badge-${idx}">${loc.badge}</span>
+      <span class="badge" id="badge-${idx}" style="${loc.badge ? '' : 'display:none'}">${loc.badge}</span>
     </div>
     <div id="now-${idx}"></div>
     <div class="chart-wrap"><div id="state-${idx}" class="state">Récupération des données…</div><canvas id="chart-${idx}" style="display:none"></canvas></div>
@@ -1642,7 +1641,7 @@ const dayDividerPlugin = {
       ctx.stroke();
     });
     ctx.setLineDash([]);
-    ctx.fillStyle = '#c7cfda';
+    ctx.fillStyle = '#e3e9f1';
     ctx.font = '600 10px IBM Plex Mono, monospace';
     ctx.textAlign = 'left';
     opts.labels.forEach(l=>{
@@ -1679,8 +1678,8 @@ const windRowPlugin = {
       ctx.save();
       ctx.translate(xPix, y);
       ctx.rotate(angleRad);
-      ctx.strokeStyle = '#6fcf97';
-      ctx.fillStyle = '#6fcf97';
+      ctx.strokeStyle = '#7ee2a8';
+      ctx.fillStyle = '#7ee2a8';
       ctx.lineWidth = 1.3;
       ctx.beginPath();
       ctx.moveTo(0, -6);
@@ -1695,7 +1694,7 @@ const windRowPlugin = {
       ctx.restore();
 
       ctx.save();
-      ctx.fillStyle = '#8b96a5';
+      ctx.fillStyle = '#b9c3d0';
       ctx.font = '8.5px IBM Plex Mono, monospace';
       ctx.textAlign = 'center';
       ctx.fillText(Math.round(p.speed), xPix, y + 17);
@@ -1830,17 +1829,17 @@ async function loadLocation(idx){
       const dayTemps = h.temperature_2m.slice(dayStartIndex, dayStartIndex + 24);
       const dayPrecip = h.precipitation.slice(dayStartIndex, dayStartIndex + 24);
       const dayDate = new Date(h.time[dayStartIndex]);
-      const dateLabel = dayDate.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'short' });
+      const dateLabel = dayDate.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
       nowEl.innerHTML = `
         <div class="now-row">
           <span class="now-temp">${Math.round(Math.max(...dayTemps))}°</span>
-          <span class="now-detail">${dateLabel}<br>min ${Math.round(Math.min(...dayTemps))}° · cumul pluie ${dayPrecip.reduce((a,b)=>a+b,0).toFixed(1)} mm</span>
+          <span class="now-detail"><div>${dateLabel}</div><div>min <b>${Math.round(Math.min(...dayTemps))}°</b> · pluie <b>${dayPrecip.reduce((a,b)=>a+b,0).toFixed(1)} mm</b></div></span>
         </div>`;
     } else {
       nowEl.innerHTML = `
         <div class="now-row">
           <span class="now-temp">${Math.round(data.current.temperature_2m)}°</span>
-          <span class="now-detail">Ressenti ${Math.round(data.current.apparent_temperature)}° · ${Math.round(data.current.relative_humidity_2m)}% hum.<br>${data.current.precipitation.toFixed(1)} mm/h · ${Math.round(data.current.wind_speed_10m)} km/h (rafales ${Math.round(data.current.wind_gusts_10m)})</span>
+          <span class="now-detail"><div>Ressenti <b>${Math.round(data.current.apparent_temperature)}°</b> · <b>${Math.round(data.current.relative_humidity_2m)} %</b> hum.</div><div><b>${data.current.precipitation.toFixed(1)}</b> mm/h · <b>${Math.round(data.current.wind_speed_10m)}</b> km/h · raf. <b>${Math.round(data.current.wind_gusts_10m)}</b></div></span>
         </div>`;
     }
 
